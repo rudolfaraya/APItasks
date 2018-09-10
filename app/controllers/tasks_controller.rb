@@ -3,13 +3,13 @@ class TasksController < ApplicationController
 
   # GET /tasks
   def index
-    @tasks = Task.all
+    @tasks = current_user.tasks
     json_response(@tasks)
   end
 
   # POST /tasks
   def create
-    @task = Task.create!(task_params)
+    @task = current_user.tasks.create!(task_params)
     json_response(@task, :created)
   end
 
@@ -34,7 +34,7 @@ class TasksController < ApplicationController
 
   def task_params
     # whitelist params
-    params.permit(:title, :created_by, :state)
+    params.permit(:title, :state)
   end
 
   def set_task

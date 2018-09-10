@@ -1,108 +1,63 @@
 require 'rails_helper'
 
 RSpec.describe 'Tasks API', type: :request do
-  # initialize test data
-  let!(:tasks) { create_list(:task, 10) }
+  # add tasks owner
+  let(:user) { create(:user) }
+  let!(:tasks) { create_list(:task, 10, created_by: user.id) }
   let(:task_id) { tasks.first.id }
+  # authorize request
+  let(:headers) { valid_headers }
 
-  # Test suite for GET /tasks
   describe 'GET /tasks' do
-    # make HTTP get request before each example
-    before { get '/tasks' }
+    # update request with headers
+    before { get '/tasks', params: {}, headers: headers }
 
-    it 'returns tasks' do
-      # Note `json` is a custom helper to parse JSON responses
-      expect(json).not_to be_empty
-      expect(json.size).to eq(10)
-    end
-
-    it 'returns status code 200' do
-      expect(response).to have_http_status(200)
-    end
+    # [...]
   end
 
-  # Test suite for GET /tasks/:id
   describe 'GET /tasks/:id' do
-    before { get "/tasks/#{task_id}" }
+    before { get "/tasks/#{task_id}", params: {}, headers: headers }
+    # [...]
+  end
+  # [...]
+end
 
-    context 'when the record exists' do
-      it 'returns the task' do
-        expect(json).not_to be_empty
-        expect(json['id']).to eq(task_id)
-      end
+describe 'POST /tasks' do
+  let(:valid_attributes) do
+    # send json payload
+    { title: 'Learn Ruby', created_by: user.id.to_s }.to_json
+  end
 
-      it 'returns status code 200' do
-        expect(response).to have_http_status(200)
-      end
+  context 'when request is valid' do
+    before { post '/tasks', params: valid_attributes, headers: headers }
+    # [...]
+  end
+
+  context 'when the request is invalid' do
+    let(:invalid_attributes) { { title: nil }.to_json }
+    before { post '/tasks', params: invalid_attributes, headers: headers }
+
+    it 'returns status code 422' do
+      expect(response).to have_http_status(422)
     end
 
-    context 'when the record does not exist' do
-      let(:task_id) { 100 }
-
-      it 'returns status code 404' do
-        expect(response).to have_http_status(404)
-      end
-
-      it 'returns a not found message' do
-        expect(response.body).to match(/Couldn't find Task/)
-      end
+    it 'returns a validation failure message' do
+      expect(json['message'])
+          .to match(/Missing token/)
     end
   end
 
-  # Test suite for POST /tasks
-  describe 'POST /tasks' do
-    # valid payload
-    let(:valid_attributes) { { title: 'Learn Ruby', created_by: '1' } }
-
-    context 'when the request is valid' do
-      before { post '/tasks', params: valid_attributes }
-
-      it 'creates a task' do
-        expect(json['title']).to eq('Learn Ruby')
-      end
-
-      it 'returns status code 201' do
-        expect(response).to have_http_status(201)
-      end
-    end
-
-    context 'when the request is invalid' do
-      before { post '/tasks', params: { title: 'Foobar' } }
-
-      it 'returns status code 422' do
-        expect(response).to have_http_status(422)
-      end
-
-      it 'returns a validation failure message' do
-        expect(response.body)
-            .to match(/Validation failed: Created by can't be blank/)
-      end
-    end
-  end
-
-  # Test suite for PUT /tasks/:id
   describe 'PUT /tasks/:id' do
-    let(:valid_attributes) { { title: 'Shopping' } }
+    let(:valid_attributes) { { title: 'Rancagua' }.to_json }
 
     context 'when the record exists' do
-      before { put "/tasks/#{task_id}", params: valid_attributes }
-
-      it 'updates the record' do
-        expect(response.body).to be_empty
-      end
-
-      it 'returns status code 204' do
-        expect(response).to have_http_status(204)
-      end
+      before { put "/tasks/#{task_id}", params: valid_attributes, headers: headers }
+      # [...]
     end
   end
 
-  # Test suite for DELETE /tasks/:id
   describe 'DELETE /tasks/:id' do
-    before { delete "/tasks/#{task_id}" }
-
-    it 'returns status code 204' do
-      expect(response).to have_http_status(204)
-    end
+    before { delete "/tasks/#{task_id}", params: {}, headers: headers }
+    # [...]
   end
 end
