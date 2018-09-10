@@ -83,7 +83,7 @@ class TasksController < ApplicationController
 
   def task_params
     # whitelist params
-    params.permit(:title, :state)
+    params.permit(:title, :state, :end_date)
   end
 
   def set_task

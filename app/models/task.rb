@@ -2,7 +2,14 @@ class Task < ApplicationRecord
   include AASM
 
   # validations
-  validates_presence_of :title, :created_by, :state
+  validates_presence_of :title, :created_by, :state, :end_date
+  validate :end_date_cannot_be_in_the_past
+
+  def end_date_cannot_be_in_the_past
+    if end_date.present? && end_date < Date.today
+      errors.add(:end_date, "can't be in the past")
+    end
+  end
 
   aasm column: 'state' do
     state :backlog, initial: true
