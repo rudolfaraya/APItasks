@@ -1,5 +1,5 @@
 class TasksController < ApplicationController
-  before_action :set_task, only: [:show, :update, :destroy]
+  before_action :set_task, only: [:show, :update, :destroy, :init, :finish, :cancel]
 
   # GET /tasks
   def index
@@ -27,6 +27,24 @@ class TasksController < ApplicationController
   # DELETE /tasks/:id
   def destroy
     @task.destroy
+    head :no_content
+  end
+
+  # PUT /tasks/:id/init
+  def init
+    @task.init!
+    head :no_content
+  end
+
+  # PUT /tasks/:id/finish
+  def finish
+    @task.finish!
+    head :no_content
+  end
+
+  # PUT /tasks/:id/cancel
+  def cancel
+    @task.cancel!
     head :no_content
   end
 
