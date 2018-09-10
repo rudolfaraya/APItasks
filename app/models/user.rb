@@ -6,4 +6,6 @@ class User < ApplicationRecord
   has_many :tasks, foreign_key: :created_by
   # Validations
   validates_presence_of :name, :email, :password_digest
+
+  include RolesConcern
 end
