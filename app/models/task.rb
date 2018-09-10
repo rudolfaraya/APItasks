@@ -3,6 +3,7 @@ class Task < ApplicationRecord
 
   # validations
   validates_presence_of :title, :created_by, :state, :end_date
+  validates :title, uniqueness: true
   validate :end_date_cannot_be_in_the_past
 
   def end_date_cannot_be_in_the_past
